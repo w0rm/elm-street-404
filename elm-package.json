@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "404 Elm Street",
-    "repository": "https://github.com/zalando/elm-street-404.git",
+    "repository": "https://github.com/w0rm/elm-street-404.git",
     "license": "MIT",
     "source-directories": [
         "src"

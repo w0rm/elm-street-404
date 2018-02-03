@@ -1,6 +1,6 @@
 //import Result //
 
-var _zalando$elm_street_404$Native_Offset = {
+var _w0rm$elm_street_404$Native_Offset = {
   offset: function offset (el) {
     try {
       var rect = el.getBoundingClientRect();
