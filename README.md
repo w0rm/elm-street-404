@@ -28,4 +28,4 @@ Unhappy customers: **you lose**.
 
 ## Zalando
 
-This game has been created by @w0rm, @kolja, @aryszka and @vigneshshanmugam at [Zalando hackweek](https://github.com/zalando/elm-street-404). It could be seen on the 404 page of Zalando website, but then it was removed from there. As the top contributor, I feel that there is no reason to support it on Zalando GitHub, so I made this fork!
+This game has been created by [@w0rm](https://github.com/w0rm), [@kolja](https://github.com/kolja), [@aryszka](https://github.com/aryszka) and [@vigneshshanmugam](https://github.com/vigneshshanmugam) at [Zalando Hackweek](https://jobs.zalando.com/tech/blog/using-elm-to-create-a-fun-game-in-just-five-days/). It could be seen on the 404 page of Zalando website, but then it was removed from there. As the top contributor, I feel that there is no reason to support it on Zalando GitHub, so I made this fork!
