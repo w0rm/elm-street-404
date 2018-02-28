@@ -14,4 +14,4 @@ rm dest/elm-temp.js
 cp -R index.html img dest
 
 # publish to itch.io
-butler push dest unsoundscapes/404-elm-street:html
+./butler push dest unsoundscapes/404-elm-street:html
