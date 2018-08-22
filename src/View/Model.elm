@@ -1,27 +1,25 @@
 module View.Model exposing (render)
 
-import Model exposing (Model, State(..))
+-- Views:
+
 import Article
-import MapObject exposing (MapObject, MapObjectCategory(..))
-import Textures
 import Box exposing (Box)
 import Customer exposing (Customer)
 import Dict
-
-
--- Views:
-
-import View.Tree
+import MapObject exposing (MapObject, MapObjectCategory(..))
+import Model exposing (Model, State(..))
+import Textures
+import View.Customer
+import View.DeliveryPerson
+import View.Digits
+import View.EndGame
 import View.Fountain
 import View.House
-import View.Customer
-import View.EndGame
-import View.Warehouse
-import View.DeliveryPerson
 import View.Inventory
 import View.Score
 import View.StartGame
-import View.Digits
+import View.Tree
+import View.Warehouse
 
 
 renderCustomer : Model -> Customer -> List Box
@@ -56,10 +54,10 @@ render model =
         ( texturedBoxes, clickableBoxes ) =
             Box.split (boxes model)
     in
-        { model
-            | texturedBoxes = List.sortBy (\{ layer } -> -layer) texturedBoxes
-            , clickableBoxes = clickableBoxes
-        }
+    { model
+        | texturedBoxes = List.sortBy (\{ layer } -> -layer) texturedBoxes
+        , clickableBoxes = clickableBoxes
+    }
 
 
 boxes : Model -> List Box

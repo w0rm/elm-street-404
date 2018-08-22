@@ -1,12 +1,12 @@
 module View.Request exposing (render)
 
-import View.Category
 import Actions exposing (Action)
-import Request exposing (Request)
 import Box exposing (Box)
 import Layers exposing (layers)
 import MapObject exposing (MapObject)
+import Request exposing (Request)
 import Textures
+import View.Category
 
 
 renderReturn : ( Float, Float ) -> Box
@@ -26,19 +26,23 @@ render position house request =
         renderClickable =
             Box.clickable ( 1, 1 ) ( 0, 0 ) position ( layers.clickAbove, 0 )
     in
-        case request.category of
-            Request.Return article ->
-                renderClickable (Actions.ClickMapObject house (Just <| Actions.ClickArticle article))
-                    :: if request.blinkHidden then
+    case request.category of
+        Request.Return article ->
+            renderClickable (Actions.ClickMapObject house (Just <| Actions.ClickArticle article))
+                :: (if request.blinkHidden then
                         []
-                       else
+
+                    else
                         [ renderReturn position
                         , View.Category.render position article.category
                         ]
+                   )
 
-            Request.Order category ->
-                renderClickable (Actions.ClickMapObject house (Just <| Actions.ClickCategory category))
-                    :: if request.blinkHidden then
+        Request.Order category ->
+            renderClickable (Actions.ClickMapObject house (Just <| Actions.ClickCategory category))
+                :: (if request.blinkHidden then
                         []
-                       else
+
+                    else
                         [ View.Category.render position category ]
+                   )

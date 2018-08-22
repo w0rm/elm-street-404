@@ -1,20 +1,19 @@
-module Customer
-    exposing
-        ( Customer
-        , animate
-        , livesHere
-        , decHappiness
-        , incHappiness
-        , isLost
-        , rodnams
-        )
+module Customer exposing
+    ( Customer
+    , animate
+    , decHappiness
+    , incHappiness
+    , isLost
+    , livesHere
+    , rodnams
+    )
 
+import AnimationState exposing (AnimatedObject, animateFrame)
+import Dict exposing (Dict)
+import IHopeItWorks
 import MapObject exposing (MapObject)
 import Random
 import Time exposing (Time)
-import Dict exposing (Dict)
-import AnimationState exposing (AnimatedObject, animateFrame)
-import IHopeItWorks
 
 
 type alias Customer =
@@ -79,19 +78,21 @@ modHappiness d ({ happiness, location } as customer) =
         newHappiness =
             if customer.isDressed then
                 happiness
+
             else
                 happiness + d
 
         newLocation =
             if newHappiness < 0 then
                 Nothing
+
             else
                 location
     in
-        { customer
-            | happiness = clamp 0 2 newHappiness
-            , location = newLocation
-        }
+    { customer
+        | happiness = clamp 0 2 newHappiness
+        , location = newLocation
+    }
 
 
 incHappiness : Customer -> Customer

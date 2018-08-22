@@ -1,4 +1,4 @@
-module IHopeItWorks exposing (exclude, remove, pickRandom, find)
+module IHopeItWorks exposing (exclude, find, pickRandom, remove)
 
 import Random
 
@@ -14,6 +14,7 @@ find fn list =
         el :: rest ->
             if fn el then
                 Just el
+
             else
                 find fn rest
 
@@ -27,12 +28,13 @@ remove_ fn list =
         first :: rest ->
             if fn first then
                 ( True, rest )
+
             else
                 let
                     ( found, remainder ) =
                         remove_ fn rest
                 in
-                    ( found, first :: remainder )
+                ( found, first :: remainder )
 
 
 {-| remove only the first match from the list
@@ -58,10 +60,11 @@ exclude left right =
                 nextLeft =
                     exclude rest nextRight
             in
-                if found then
-                    nextLeft
-                else
-                    first :: nextLeft
+            if found then
+                nextLeft
+
+            else
+                first :: nextLeft
 
 
 {-| generate random element from the list

@@ -1,9 +1,9 @@
 module PathView exposing (render)
 
-import Svg exposing (svg, polyline)
-import Svg.Attributes exposing (..)
-import Html exposing (Html)
 import Actions exposing (Action)
+import Html exposing (Html)
+import Svg exposing (polyline, svg)
+import Svg.Attributes exposing (..)
 
 
 addPointToSring : Int -> ( Int, Int ) -> String -> String

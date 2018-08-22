@@ -1,7 +1,7 @@
 module View.Placeholder exposing (render)
 
-import Layers exposing (layers)
 import Box exposing (Box)
+import Layers exposing (layers)
 import Textures
 
 

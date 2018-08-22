@@ -1,18 +1,18 @@
-port module Main exposing (..)
+port module Main exposing (escapeToSuspend, main, restore, subscriptions, suspend)
 
 import Actions exposing (Action(..))
-import Model exposing (Model)
+import AnimationFrame
 import Html
+import Json.Decode as Json
+import Keyboard
+import Model exposing (Model)
+import Process
+import Task
+import Textures
+import Time
 import Update
 import View
 import Window
-import Textures
-import AnimationFrame
-import Task
-import Process
-import Json.Decode as Json
-import Time
-import Keyboard
 
 
 port suspend : (Bool -> msg) -> Sub msg
@@ -31,11 +31,13 @@ subscriptions model =
             Sub.batch
                 [ if model.state == Model.Playing || model.state == Model.Lost || model.state == Model.Won then
                     AnimationFrame.diffs Tick
+
                   else
                     Sub.none
                 , Window.resizes Dimensions
                 , if model.embed then
                     Keyboard.downs escapeToSuspend
+
                   else
                     Sub.none
                 , suspend (\_ -> Suspend)
@@ -49,7 +51,7 @@ main : Program Json.Value Model Action
 main =
     Html.programWithFlags
         { init =
-            (\flags ->
+            \flags ->
                 let
                     imagesUrl =
                         flags
@@ -71,15 +73,14 @@ main =
                             |> Json.decodeValue (Json.field "devicePixelRatio" Json.float)
                             |> Result.withDefault 1
                 in
-                    ( Model.initial randomSeed imagesUrl embed devicePixelRatio
-                    , Cmd.batch
-                        [ Update.loadImage imagesUrl Textures.Score
-                        , Task.perform
-                            Dimensions
-                            (Process.sleep 100 |> Task.andThen (\_ -> Window.size))
-                        ]
-                    )
-            )
+                ( Model.initial randomSeed imagesUrl embed devicePixelRatio
+                , Cmd.batch
+                    [ Update.loadImage imagesUrl Textures.Score
+                    , Task.perform
+                        Dimensions
+                        (Process.sleep 100 |> Task.andThen (\_ -> Window.size))
+                    ]
+                )
         , update = Update.update
         , view = View.view
         , subscriptions = subscriptions

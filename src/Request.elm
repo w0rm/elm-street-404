@@ -1,24 +1,23 @@
-module Request
-    exposing
-        ( Request
-        , RequestCategory(..)
-        , isInReturn
-        , isOrdered
-        , animate
-        , inTime
-        , orders
-        , orderedCategories
-        , returnArticles
-        )
+module Request exposing
+    ( Request
+    , RequestCategory(..)
+    , animate
+    , inTime
+    , isInReturn
+    , isOrdered
+    , orderedCategories
+    , orders
+    , returnArticles
+    )
 
-import MapObject exposing (MapObject)
 import Article exposing (Article)
 import Category exposing (Category)
-import Time exposing (Time)
-import IHopeItWorks
-import Random
-import Dict exposing (Dict)
 import Customer exposing (Customer)
+import Dict exposing (Dict)
+import IHopeItWorks
+import MapObject exposing (MapObject)
+import Random
+import Time exposing (Time)
 
 
 type RequestCategory
@@ -79,6 +78,7 @@ orders : Int -> List MapObject -> List Category -> Random.Generator (List Reques
 orders number houses categories =
     if number <= 0 then
         Random.map (always []) (Random.int 0 0)
+
     else
         Random.pair (IHopeItWorks.pickRandom houses) (IHopeItWorks.pickRandom categories)
             |> Random.andThen
@@ -138,20 +138,22 @@ flash elapsed =
 
         -- max speed
     in
-        if elapsed < z then
-            False
-        else
-            let
-                x =
-                    elapsed - z
+    if elapsed < z then
+        False
 
-                s =
-                    if a * x + b > m then
-                        m
-                    else
-                        a * x + b
-            in
-                0 < sin (s * x)
+    else
+        let
+            x =
+                elapsed - z
+
+            s =
+                if a * x + b > m then
+                    m
+
+                else
+                    a * x + b
+        in
+        0 < sin (s * x)
 
 
 animate : Time -> Request -> Request

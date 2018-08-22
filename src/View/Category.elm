@@ -1,8 +1,8 @@
 module View.Category exposing (render)
 
+import Box exposing (Box)
 import Category exposing (Category, Kind(..))
 import Layers exposing (layers)
-import Box exposing (Box)
 import Textures
 
 

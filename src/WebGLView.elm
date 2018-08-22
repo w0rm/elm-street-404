@@ -1,14 +1,14 @@
 module WebGLView exposing (render)
 
-import Html exposing (Html)
-import Html.Attributes exposing (width, height, style)
-import WebGL exposing (Shader, Entity, Mesh, Texture)
-import WebGL.Settings.Blend as Blend
-import Math.Vector2 exposing (Vec2, vec2, fromTuple)
-import Box
-import Textures exposing (Textures)
-import AllDict exposing (AllDict)
 import Actions exposing (Action)
+import AllDict exposing (AllDict)
+import Box
+import Html exposing (Html)
+import Html.Attributes exposing (height, style, width)
+import Math.Vector2 exposing (Vec2, fromTuple, vec2)
+import Textures exposing (Textures)
+import WebGL exposing (Entity, Mesh, Shader, Texture)
+import WebGL.Settings.Blend as Blend
 
 
 type alias Vertex =
@@ -48,11 +48,9 @@ render devicePixelRatio (( w, h ) as dimensions) tileSize textures boxes =
     WebGL.toHtml
         [ width (toFloat w * toFloat tileSize * devicePixelRatio |> round)
         , height (toFloat h * toFloat tileSize * devicePixelRatio |> round)
-        , style
-            [ ( "position", "absolute" )
-            , ( "width", toString (w * tileSize) ++ "px" )
-            , ( "height", toString (h * tileSize) ++ "px" )
-            ]
+        , style "position" "absolute"
+        , style "width" (toString (w * tileSize) ++ "px")
+        , style "height" (toString (h * tileSize) ++ "px")
         ]
         (List.filterMap (renderTextured dimensions textures) (List.reverse boxes))
 

@@ -1,12 +1,11 @@
-module Textures
-    exposing
-        ( Textures
-        , TextureId(..)
-        , filename
-        , textures
-        , loadTextures
-        , loadedTextures
-        )
+module Textures exposing
+    ( TextureId(..)
+    , Textures
+    , filename
+    , loadTextures
+    , loadedTextures
+    , textures
+    )
 
 import AllDict exposing (AllDict)
 import WebGL

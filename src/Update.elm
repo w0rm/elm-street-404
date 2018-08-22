@@ -1,17 +1,17 @@
-port module Update exposing (update, loadImage)
+port module Update exposing (loadImage, update)
 
-import Model exposing (..)
-import View.Model
 import Actions exposing (..)
-import DeliveryPerson exposing (Location(..))
-import Article exposing (State(..), Article)
-import MapObject exposing (MapObject, MapObjectCategory(..))
-import Category exposing (Category)
-import IHopeItWorks
-import Task exposing (Task)
-import WebGL.Texture as Texture
-import Textures exposing (TextureId)
 import AllDict
+import Article exposing (Article, State(..))
+import Category exposing (Category)
+import DeliveryPerson exposing (Location(..))
+import IHopeItWorks
+import MapObject exposing (MapObject, MapObjectCategory(..))
+import Model exposing (..)
+import Task exposing (Task)
+import Textures exposing (TextureId)
+import View.Model
+import WebGL.Texture as Texture
 import Window
 
 
@@ -22,7 +22,9 @@ update : Action -> Model -> ( Model, Cmd Action )
 update action model =
     case action of
         HoverCloseButton active ->
-            { model | closeButtonActive = active } ! []
+            ( { model | closeButtonActive = active }
+            , Cmd.none
+            )
 
         Dimensions { width, height } ->
             ( Model.resize ( width, height ) model |> View.Model.render, Cmd.none )
@@ -58,46 +60,58 @@ update action model =
                 texturesToLoad =
                     Textures.loadTextures newModel.textures
             in
-                if textureId == Textures.Score then
-                    case model.state of
-                        Suspended _ ->
-                            ( { newModel | state = Suspended Loading }
-                            , Cmd.batch (List.map (loadImage model.imagesUrl) texturesToLoad)
-                            )
+            if textureId == Textures.Score then
+                case model.state of
+                    Suspended _ ->
+                        ( { newModel | state = Suspended Loading }
+                        , Cmd.batch (List.map (loadImage model.imagesUrl) texturesToLoad)
+                        )
 
-                        _ ->
-                            ( { newModel | state = Loading }
-                            , Cmd.batch (List.map (loadImage model.imagesUrl) texturesToLoad)
-                            )
-                else if List.length texturesToLoad == 0 then
-                    case model.state of
-                        Suspended _ ->
-                            View.Model.render { newModel | state = Suspended Stopped } ! []
+                    _ ->
+                        ( { newModel | state = Loading }
+                        , Cmd.batch (List.map (loadImage model.imagesUrl) texturesToLoad)
+                        )
 
-                        _ ->
-                            View.Model.render { newModel | state = Stopped } ! []
-                else
-                    View.Model.render newModel ! []
+            else if List.length texturesToLoad == 0 then
+                case model.state of
+                    Suspended _ ->
+                        ( View.Model.render { newModel | state = Suspended Stopped }
+                        , Cmd.none
+                        )
+
+                    _ ->
+                        ( View.Model.render { newModel | state = Stopped }
+                        , Cmd.none
+                        )
+
+            else
+                ( View.Model.render newModel
+                , Cmd.none
+                )
 
         BackToStart ->
-            View.Model.render { model | state = Stopped } ! []
+            ( View.Model.render { model | state = Stopped }
+            , Cmd.none
+            )
 
         Start ->
-            Model.start model ! []
+            ( Model.start model
+            , Cmd.none
+            )
 
         Tick time ->
             let
                 ( newModel, maybeAction ) =
                     Model.animate time model
             in
-                ( View.Model.render newModel
-                , case maybeAction of
-                    Just action ->
-                        Task.perform identity (Task.succeed action)
+            ( View.Model.render newModel
+            , case maybeAction of
+                Just action ->
+                    Task.perform identity (Task.succeed action)
 
-                    Nothing ->
-                        Cmd.none
-                )
+                Nothing ->
+                    Cmd.none
+            )
 
         Click { x, y } ->
             let
@@ -109,7 +123,7 @@ update action model =
                         Nothing ->
                             Cmd.none
             in
-                ( model, effect )
+            ( model, effect )
 
         ClickArticle article ->
             ifPlaying (onArticleClick article) model
@@ -123,32 +137,47 @@ update action model =
         Suspend ->
             case ( model.embed, model.state ) of
                 ( True, Suspended _ ) ->
-                    model ! []
+                    ( model
+                    , Cmd.none
+                    )
 
                 _ ->
-                    { model | state = Suspended model.state, closeButtonActive = False } ! [ suspended True ]
+                    ( { model | state = Suspended model.state, closeButtonActive = False }
+                    , suspended True
+                    )
 
         Restore ->
             case ( model.embed, model.state ) of
                 ( True, Suspended prevState ) ->
-                    { model | state = prevState } ! [ Task.perform Dimensions Window.size ]
+                    ( { model | state = prevState }
+                    , Task.perform Dimensions Window.size
+                    )
 
                 _ ->
-                    model ! []
+                    ( model
+                    , Cmd.none
+                    )
 
         Event eventAction ->
             ifPlaying (Model.dispatch eventAction) model
 
         NoOp ->
-            model ! []
+            ( model
+            , Cmd.none
+            )
 
 
 ifPlaying : (Model -> Model) -> Model -> ( Model, Cmd Action )
 ifPlaying fun model =
     if model.state == Playing then
-        fun model ! []
+        ( fun model
+        , Cmd.none
+        )
+
     else
-        model ! []
+        ( model
+        , Cmd.none
+        )
 
 
 loadImage : String -> TextureId -> Cmd Action
@@ -167,12 +196,12 @@ onCategoryClick category model =
         isPickedCategory a =
             a.category == category && Article.isPicked a
     in
-        case IHopeItWorks.find isPickedCategory model.articles of
-            Just article ->
-                onArticleClick article model
+    case IHopeItWorks.find isPickedCategory model.articles of
+        Just article ->
+            onArticleClick article model
 
-            _ ->
-                model
+        _ ->
+            model
 
 
 onArticleClick : Article -> Model -> Model

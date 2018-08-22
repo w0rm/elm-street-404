@@ -1,14 +1,13 @@
-module OffsetClick
-    exposing
-        ( Position
-        , onClick
-        )
+module OffsetClick exposing
+    ( Position
+    , onClick
+    )
 
-import Json.Decode as Json exposing (Decoder)
-import Html.Events as Events
 import Html
-import Result exposing (Result)
+import Html.Events as Events
+import Json.Decode as Json exposing (Decoder)
 import Native.Offset
+import Result exposing (Result)
 
 
 type alias Position =

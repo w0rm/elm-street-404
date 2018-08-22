@@ -1,12 +1,12 @@
 module Actions exposing (Action(..), EventAction(..))
 
 import Article exposing (Article)
-import MapObject exposing (MapObject)
-import Time exposing (Time)
 import Category exposing (Category)
-import Textures exposing (TextureId)
-import WebGL exposing (Texture)
+import MapObject exposing (MapObject)
 import OffsetClick exposing (Position)
+import Textures exposing (TextureId)
+import Time exposing (Time)
+import WebGL exposing (Texture)
 import Window exposing (Size)
 
 

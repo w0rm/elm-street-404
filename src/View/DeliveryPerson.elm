@@ -1,15 +1,15 @@
 module View.DeliveryPerson exposing (render)
 
-import DeliveryPerson exposing (DeliveryPerson)
-import Box exposing (Box)
-import Textures
 import Basics exposing (atan2)
+import Box exposing (Box)
+import DeliveryPerson exposing (DeliveryPerson)
 import Layers exposing (layers)
+import Textures
 
 
 calculateDirection : ( Float, Float ) -> Int
 calculateDirection ( x, y ) =
-    round (2 + atan2 y x * 4 / pi) % 8
+    modBy 8 (round (2 + atan2 y x * 4 / pi))
 
 
 direction : DeliveryPerson -> Int
@@ -61,7 +61,7 @@ render numberOfBoxes deliveryPerson =
                 (boxesOffset (direction deliveryPerson))
                 Textures.Boxes
                 deliveryPerson.position
-                ((4 - numberOfBoxes) * 6 + (direction deliveryPerson % 2) * 3 + deliveryPerson.frame)
+                ((4 - numberOfBoxes) * 6 + (modBy 2 (direction deliveryPerson)) * 3 + deliveryPerson.frame)
                 ( layers.obstacle, 2 )
             , Box.offsetTextured
                 ( 0, -2 )
@@ -69,21 +69,22 @@ render numberOfBoxes deliveryPerson =
                 deliveryPerson.position
                 (if frame >= 9 && frame <= 17 then
                     frame - 6
+
                  else
                     0
                 )
                 ( layers.obstacle, 3 )
             ]
     in
-        case deliveryPerson.location of
-            DeliveryPerson.OnTheWayTo _ _ ->
-                boxes
+    case deliveryPerson.location of
+        DeliveryPerson.OnTheWayTo _ _ ->
+            boxes
 
-            _ ->
-                [ Box.offsetTextured
-                    ( 0, -2 )
-                    Textures.DeliveryPersonBack
-                    deliveryPerson.position
-                    (24 + numberOfBoxes)
-                    ( layers.obstacle, 0 )
-                ]
+        _ ->
+            [ Box.offsetTextured
+                ( 0, -2 )
+                Textures.DeliveryPersonBack
+                deliveryPerson.position
+                (24 + numberOfBoxes)
+                ( layers.obstacle, 0 )
+            ]

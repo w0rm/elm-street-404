@@ -1,9 +1,9 @@
 module View.StartGame exposing (render)
 
-import Box exposing (Box)
-import Textures
-import Layers exposing (layers)
 import Actions exposing (Action)
+import Box exposing (Box)
+import Layers exposing (layers)
+import Textures
 
 
 render : ( Int, Int ) -> List Box
