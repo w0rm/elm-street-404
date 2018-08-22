@@ -1,13 +1,12 @@
 module Actions exposing (Action(..), EventAction(..))
 
 import Article exposing (Article)
-import MapObject exposing (MapObject)
-import Time exposing (Time)
+import Browser.Dom exposing (Viewport)
 import Category exposing (Category)
-import Textures exposing (TextureId)
-import WebGL exposing (Texture)
+import MapObject exposing (MapObject)
 import OffsetClick exposing (Position)
-import Window exposing (Size)
+import Textures exposing (TextureId)
+import WebGL.Texture exposing (Texture)
 
 
 type EventAction
@@ -19,7 +18,7 @@ type EventAction
 
 
 type Action
-    = Tick Time
+    = Tick Float
     | Start
     | BackToStart
     | Suspend
@@ -28,8 +27,9 @@ type Action
     | ClickArticle Article
     | ClickCategory Category
     | ClickMapObject MapObject (Maybe Action)
-    | TextureLoaded TextureId (Maybe Texture)
-    | Dimensions Size
+    | TextureLoaded String (Maybe Texture)
+    | Dimensions Int Int
+    | GetViewport Viewport
     | HoverCloseButton Bool
     | Event EventAction
     | NoOp

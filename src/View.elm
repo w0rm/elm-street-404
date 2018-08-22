@@ -1,34 +1,27 @@
 module View exposing (view)
 
 import Actions exposing (Action)
-import Html exposing (div, br, Html, text, button)
+import Html exposing (Html, br, button, div, text)
 import Html.Attributes exposing (style)
-import Html.Events exposing (onClick, onMouseOver, onMouseLeave)
+import Html.Events exposing (onClick, onMouseLeave, onMouseOver)
 import Model exposing (Model)
+import OffsetClick
 import PathView
 import WebGLView
-import OffsetClick
-
-
-(=>) : a -> b -> ( a, b )
-(=>) =
-    (,)
 
 
 debug : Model -> Html Action
 debug model =
     div
-        [ style
-            [ "background" => "linear-gradient(0deg, #000000 0, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), linear-gradient(90deg, #000000 0, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%)"
-            , "background-origin" => "padding-box"
-            , "background-clip" => "border-box"
-            , "background-size" => (toString model.tileSize ++ "px " ++ toString model.tileSize ++ "px")
-            , "position" => "absolute"
-            , "left" => "0"
-            , "top" => "0"
-            , "width" => "100%"
-            , "height" => "100%"
-            ]
+        [ style "background" "linear-gradient(0deg, #000000 0, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), linear-gradient(90deg, #000000 0, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%)"
+        , style "background-origin" "padding-box"
+        , style "background-clip" "border-box"
+        , style "background-size" (String.fromInt model.tileSize ++ "px " ++ String.fromInt model.tileSize ++ "px")
+        , style "position" "absolute"
+        , style "left" "0"
+        , style "top" "0"
+        , style "width" "100%"
+        , style "height" "100%"
         ]
         []
 
@@ -48,44 +41,50 @@ view model =
         screenHeight =
             max (Tuple.second model.dimensions) mapHeight
     in
-        case model.state of
-            Model.Suspended _ ->
-                text ""
+    case model.state of
+        Model.Suspended _ ->
+            text ""
 
-            _ ->
-                div
-                    [ style
-                        [ "background-image" => ("url(" ++ model.imagesUrl ++ "/bg-tile.jpg" ++ ")")
-                        , "background-size" => "560px 560px"
-                        , "background-position" => "50% 50%"
-                        , "position" => "relative"
-                        , "width" => (toString screenWidth ++ "px")
-                        , "height" => (toString screenHeight ++ "px")
-                        , "-ms-user-select" => "none"
-                        , "-moz-user-select" => "none"
-                        , "-webkit-user-select" => "none"
-                        , "user-select" => "none"
-                        ]
+        _ ->
+            div
+                [ style "background-image" ("url(" ++ model.imagesUrl ++ "/bg-tile.jpg" ++ ")")
+                , style "background-size" "560px 560px"
+                , style "background-position" "50% 50%"
+                , style "position" "absolute"
+                , style "left" "0"
+                , style "top" "0"
+                , style "width" (String.fromInt screenWidth ++ "px")
+                , style "height" (String.fromInt screenHeight ++ "px")
+                , style "-ms-user-select" "none"
+                , style "-moz-user-select" "none"
+                , style "-webkit-user-select" "none"
+                , style "user-select" "none"
+                ]
+                (div
+                    [ style "position" "absolute"
+                    , style "width" (String.fromInt mapWidth ++ "px")
+                    , style "height" (String.fromInt mapHeight ++ "px")
+                    , style "left" (String.fromInt ((screenWidth - mapWidth) // 2) ++ "px")
+                    , style "top" (String.fromInt ((screenHeight - mapHeight) // 2) ++ "px")
+                    , style "-webkit-tap-highlight-color" "transparent"
+                    , OffsetClick.onClick
+                        (\{ x, y } ->
+                            Actions.Click
+                                { x = x - (screenWidth - mapWidth) // 2
+                                , y = y - (screenHeight - mapHeight) // 2
+                                }
+                        )
                     ]
-                    (div
-                        [ style
-                            [ "position" => "absolute"
-                            , "width" => (toString mapWidth ++ "px")
-                            , "height" => (toString mapHeight ++ "px")
-                            , "left" => (toString ((screenWidth - mapWidth) // 2) ++ "px")
-                            , "top" => (toString ((screenHeight - mapHeight) // 2) ++ "px")
-                            , "-webkit-tap-highlight-color" => "transparent"
-                            ]
-                        , OffsetClick.onClick Actions.Click
-                        ]
-                        [ PathView.render model.gridSize model.tileSize model.deliveryPerson.route
-                        , WebGLView.render model.devicePixelRatio model.gridSize model.tileSize model.textures model.texturedBoxes
-                        ]
-                        :: if model.embed then
+                    [ PathView.render model.gridSize model.tileSize model.deliveryPerson.route
+                    , WebGLView.render model.devicePixelRatio model.gridSize model.tileSize model.textures model.texturedBoxes
+                    ]
+                    :: (if model.embed then
                             [ closeButton model.closeButtonActive (toFloat model.tileSize) (model.imagesUrl ++ "/close.png") ]
-                           else
+
+                        else
                             []
-                    )
+                       )
+                )
 
 
 closeButton : Bool -> Float -> String -> Html Action
@@ -94,27 +93,26 @@ closeButton active size url =
         [ onClick Actions.Suspend
         , onMouseLeave (Actions.HoverCloseButton False)
         , onMouseOver (Actions.HoverCloseButton True)
-        , style
-            [ "position" => "absolute"
-            , "right" => "0px"
-            , "top" => "0px"
-            , "border" => "none"
-            , "padding" => "0"
-            , "margin" => "0"
-            , "width" => (toString (round (size * 110 / 80)) ++ "px")
-            , "height" => (toString (round (size * 110 / 97)) ++ "px")
-            , "background-color" => "transparent"
-            , "background-image" => ("url(" ++ url ++ ")")
-            , "background-size" => "200% 100%"
-            , "background-position"
-                => (if active then
-                        "-100% 0"
-                    else
-                        "0 0"
-                   )
-            , "outline" => "none"
-            , "cursor" => "pointer"
-            , "touch-action" => "manipulation"
-            ]
+        , style "position" "absolute"
+        , style "right" "0"
+        , style "top" "0"
+        , style "border" "none"
+        , style "padding" "0"
+        , style "margin" "0"
+        , style "width" (String.fromInt (round (size * 110 / 80)) ++ "px")
+        , style "height" (String.fromInt (round (size * 110 / 97)) ++ "px")
+        , style "background-color" "transparent"
+        , style "background-image" ("url(" ++ url ++ ")")
+        , style "background-size" "200% 100%"
+        , style "background-position"
+            (if active then
+                "-100% 0"
+
+             else
+                "0 0"
+            )
+        , style "outline" "none"
+        , style "cursor" "pointer"
+        , style "touch-action" "manipulation"
         ]
         []

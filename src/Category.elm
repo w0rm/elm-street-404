@@ -1,14 +1,13 @@
-module Category
-    exposing
-        ( Kind(..)
-        , Category
-        , random
-        , getColor
-        , fullyDressed
-        )
+module Category exposing
+    ( Category
+    , Kind(..)
+    , fullyDressed
+    , getColor
+    , random
+    )
 
-import Random
 import IHopeItWorks
+import Random
 
 
 type alias Category =

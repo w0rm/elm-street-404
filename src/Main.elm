@@ -1,18 +1,19 @@
-port module Main exposing (..)
+port module Main exposing (escapeToSuspend, main, restore, subscriptions, suspend)
 
 import Actions exposing (Action(..))
-import Model exposing (Model)
+import Browser
+import Browser.Dom exposing (Viewport, getViewport)
+import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onKeyUp, onResize)
 import Html
+import Html.Events exposing (keyCode)
+import Json.Decode as Decode exposing (Value)
+import Model exposing (Model)
+import Process
+import Task
+import Textures
+import Time
 import Update
 import View
-import Window
-import Textures
-import AnimationFrame
-import Task
-import Process
-import Json.Decode as Json
-import Time
-import Keyboard
 
 
 port suspend : (Bool -> msg) -> Sub msg
@@ -30,12 +31,14 @@ subscriptions model =
         _ ->
             Sub.batch
                 [ if model.state == Model.Playing || model.state == Model.Lost || model.state == Model.Won then
-                    AnimationFrame.diffs Tick
+                    onAnimationFrameDelta Tick
+
                   else
                     Sub.none
-                , Window.resizes Dimensions
+                , onResize Dimensions
                 , if model.embed then
-                    Keyboard.downs escapeToSuspend
+                    onKeyDown (Decode.map escapeToSuspend keyCode)
+
                   else
                     Sub.none
                 , suspend (\_ -> Suspend)
@@ -45,41 +48,39 @@ subscriptions model =
                 ]
 
 
-main : Program Json.Value Model Action
+main : Program Value Model Action
 main =
-    Html.programWithFlags
+    Browser.element
         { init =
-            (\flags ->
+            \flags ->
                 let
                     imagesUrl =
                         flags
-                            |> Json.decodeValue (Json.field "imagesUrl" Json.string)
+                            |> Decode.decodeValue (Decode.field "imagesUrl" Decode.string)
                             |> Result.withDefault "../img"
 
                     randomSeed =
                         flags
-                            |> Json.decodeValue (Json.field "randomSeed" Json.int)
+                            |> Decode.decodeValue (Decode.field "randomSeed" Decode.int)
                             |> Result.withDefault 0
 
                     embed =
                         flags
-                            |> Json.decodeValue (Json.field "embed" Json.bool)
+                            |> Decode.decodeValue (Decode.field "embed" Decode.bool)
                             |> Result.withDefault False
 
                     devicePixelRatio =
                         flags
-                            |> Json.decodeValue (Json.field "devicePixelRatio" Json.float)
+                            |> Decode.decodeValue (Decode.field "devicePixelRatio" Decode.float)
                             |> Result.withDefault 1
                 in
-                    ( Model.initial randomSeed imagesUrl embed devicePixelRatio
-                    , Cmd.batch
-                        [ Update.loadImage imagesUrl Textures.Score
-                        , Task.perform
-                            Dimensions
-                            (Process.sleep 100 |> Task.andThen (\_ -> Window.size))
-                        ]
-                    )
-            )
+                ( Model.initial randomSeed imagesUrl embed devicePixelRatio
+                , Cmd.batch
+                    [ Update.loadImage imagesUrl (Textures.filename Textures.Score)
+                    , Task.perform GetViewport
+                        (Process.sleep 100 |> Task.andThen (\_ -> getViewport))
+                    ]
+                )
         , update = Update.update
         , view = View.view
         , subscriptions = subscriptions

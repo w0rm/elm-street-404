@@ -1,17 +1,18 @@
 module View.Customer exposing (render)
 
-import Customer exposing (Customer)
-import Box exposing (Box)
-import Textures
-import Layers exposing (layers)
 import Article exposing (Article)
+import Box exposing (Box)
 import Category exposing (Category)
+import Customer exposing (Customer)
+import Layers exposing (layers)
+import Textures
 
 
 shirtFrameOffset : Customer -> Int -> Int
 shirtFrameOffset { happiness, frame } color =
     if happiness > 0 then
         color * 3
+
     else
         color * 3 + 1 + frame
 
@@ -61,13 +62,14 @@ render articles position customer =
         renderHeart =
             if customer.isDressed then
                 [ Box.textured Textures.Heart position customer.frame ( layers.obstacle, 6 ) ]
+
             else
                 []
     in
-        renderColor scarfColor 5 Textures.Scarves
-            ++ renderColor pantsColor 4 Textures.Trousers
-            ++ renderColor shoesColor 3 Textures.Shoes
-            ++ renderColor shirtColor 2 Textures.Shirts
-            ++ renderHeart
-            ++ [ Box.textured Textures.Customers position (customerFrameOffset customer) ( layers.obstacle, 1 )
-               ]
+    renderColor scarfColor 5 Textures.Scarves
+        ++ renderColor pantsColor 4 Textures.Trousers
+        ++ renderColor shoesColor 3 Textures.Shoes
+        ++ renderColor shirtColor 2 Textures.Shirts
+        ++ renderHeart
+        ++ [ Box.textured Textures.Customers position (customerFrameOffset customer) ( layers.obstacle, 1 )
+           ]

@@ -1,14 +1,12 @@
-module OffsetClick
-    exposing
-        ( Position
-        , onClick
-        )
+module OffsetClick exposing
+    ( Position
+    , onClick
+    )
 
-import Json.Decode as Json exposing (Decoder)
-import Html.Events as Events
 import Html
+import Html.Events as Events
+import Json.Decode as Json exposing (Decoder)
 import Result exposing (Result)
-import Native.Offset
 
 
 type alias Position =
@@ -19,39 +17,11 @@ type alias Position =
 
 onClick : (Position -> a) -> Html.Attribute a
 onClick tagger =
-    Events.on "click" (Json.map tagger relativePosition)
+    Events.on "click" (Json.map tagger position)
 
 
-relativePosition : Decoder Position
-relativePosition =
-    Json.map2
-        offsetBy
-        (Json.field "target" Json.value
-            |> Json.andThen
-                (\value ->
-                    case Native.Offset.offset value of
-                        Ok val ->
-                            Json.succeed val
-
-                        Err err ->
-                            Json.fail err
-                )
-        )
-        position
-
-
-offsetBy : Position -> Position -> Position
-offsetBy { x, y } position =
-    { x = position.x - x
-    , y = position.y - y
-    }
-
-
-offset : Json.Value -> Result String Position
-offset =
-    Native.Offset.offset
-
-
+{-| TODO: support offset?
+-}
 position : Json.Decoder Position
 position =
     Json.map2

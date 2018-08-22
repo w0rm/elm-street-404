@@ -1,24 +1,22 @@
-module Request
-    exposing
-        ( Request
-        , RequestCategory(..)
-        , isInReturn
-        , isOrdered
-        , animate
-        , inTime
-        , orders
-        , orderedCategories
-        , returnArticles
-        )
+module Request exposing
+    ( Request
+    , RequestCategory(..)
+    , animate
+    , inTime
+    , isInReturn
+    , isOrdered
+    , orderedCategories
+    , orders
+    , returnArticles
+    )
 
-import MapObject exposing (MapObject)
 import Article exposing (Article)
 import Category exposing (Category)
-import Time exposing (Time)
-import IHopeItWorks
-import Random
-import Dict exposing (Dict)
 import Customer exposing (Customer)
+import Dict exposing (Dict)
+import IHopeItWorks
+import MapObject exposing (MapObject)
+import Random
 
 
 type RequestCategory
@@ -27,8 +25,8 @@ type RequestCategory
 
 
 type alias Request =
-    { timeout : Time
-    , elapsed : Time
+    { timeout : Float
+    , elapsed : Float
     , house : MapObject
     , category : RequestCategory
     , blinkHidden : Bool
@@ -51,8 +49,8 @@ orderedCategories requests =
         [] ->
             []
 
-        request :: rest ->
-            case request.category of
+        request_ :: rest ->
+            case request_.category of
                 Order category ->
                     category :: orderedCategories rest
 
@@ -79,6 +77,7 @@ orders : Int -> List MapObject -> List Category -> Random.Generator (List Reques
 orders number houses categories =
     if number <= 0 then
         Random.map (always []) (Random.int 0 0)
+
     else
         Random.pair (IHopeItWorks.pickRandom houses) (IHopeItWorks.pickRandom categories)
             |> Random.andThen
@@ -99,26 +98,26 @@ orders number houses categories =
 
 
 isInReturn : MapObject -> Article -> Request -> Bool
-isInReturn house article request =
-    case request.category of
+isInReturn house article request_ =
+    case request_.category of
         Return article_ ->
-            house == request.house && article_ == article
+            house == request_.house && article_ == article
 
         _ ->
             False
 
 
 isOrdered : MapObject -> Category -> Request -> Bool
-isOrdered house category request =
-    case request.category of
+isOrdered house category request_ =
+    case request_.category of
         Order category_ ->
-            house == request.house && category_ == category
+            house == request_.house && category_ == category
 
         _ ->
             False
 
 
-flash : Time -> Bool
+flash : Float -> Bool
 flash elapsed =
     let
         z =
@@ -138,27 +137,29 @@ flash elapsed =
 
         -- max speed
     in
-        if elapsed < z then
-            False
-        else
-            let
-                x =
-                    elapsed - z
+    if elapsed < z then
+        False
 
-                s =
-                    if a * x + b > m then
-                        m
-                    else
-                        a * x + b
-            in
-                0 < sin (s * x)
+    else
+        let
+            x =
+                elapsed - z
+
+            s =
+                if a * x + b > m then
+                    m
+
+                else
+                    a * x + b
+        in
+        0 < sin (s * x)
 
 
-animate : Time -> Request -> Request
-animate time request =
-    { request
-        | elapsed = request.elapsed + time
-        , blinkHidden = flash request.elapsed
+animate : Float -> Request -> Request
+animate time request_ =
+    { request_
+        | elapsed = request_.elapsed + time
+        , blinkHidden = flash request_.elapsed
     }
 
 

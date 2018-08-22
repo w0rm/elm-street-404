@@ -1,23 +1,21 @@
-module MapObject
-    exposing
-        ( Box
-        , MapObject
-        , MapObjectCategory(..)
-        , placeRandom
-        , tree
-        , fountain
-        , house
-        , warehouse
-        , isHouse
-        , animate
-        , splitBy
-        , houseSlots
-        , warehouseSlots
-        )
+module MapObject exposing
+    ( Box
+    , MapObject
+    , MapObjectCategory(..)
+    , animate
+    , fountain
+    , house
+    , houseSlots
+    , isHouse
+    , placeRandom
+    , splitBy
+    , tree
+    , warehouse
+    , warehouseSlots
+    )
 
-import Random
 import Fountain exposing (Fountain)
-import Time exposing (Time)
+import Random
 
 
 type alias Box =
@@ -41,20 +39,20 @@ type alias MapObject =
     MapObject_ Box MapObjectCategory
 
 
-animate : Time -> MapObject -> MapObject
-animate elapsed mapObject =
-    case mapObject.category of
-        FountainCategory fountain ->
-            { mapObject | category = FountainCategory (Fountain.animate elapsed fountain) }
+animate : Float -> MapObject -> MapObject
+animate elapsed object =
+    case object.category of
+        FountainCategory fountain_ ->
+            { object | category = FountainCategory (Fountain.animate elapsed fountain_) }
 
         _ ->
-            mapObject
+            object
 
 
 mapObject : ( Float, Float ) -> MapObjectCategory -> MapObject
-mapObject size category =
+mapObject size_ category =
     { position = ( 0, 0 )
-    , size = size
+    , size = size_
     , category = category
     }
 
@@ -120,12 +118,12 @@ isHouse { category } =
 
 
 size : MapObject -> ( Float, Float )
-size { size } =
+size obj =
     let
         ( w, h ) =
-            size
+            obj.size
     in
-        ( w + 1, h + 1 )
+    ( w + 1, h + 1 )
 
 
 placeRandom : List MapObject -> List Box -> Random.Generator (List MapObject)
@@ -144,7 +142,7 @@ placeRandom objects boxes =
                         |> Random.andThen
                             (\position ->
                                 Random.map
-                                    (\objects -> { object | position = position } :: objects)
+                                    (\objects_ -> { object | position = position } :: objects_)
                                     (placeRandom
                                         restObjects
                                         (sortBySize (splitBy { position = position, size = size object } box ++ restBoxes))
@@ -167,30 +165,36 @@ splitBy box1 box2 =
         ( w2, h2 ) =
             box2.size
     in
-        List.filter
-            (\{ size } -> Tuple.first size > 0 && Tuple.second size > 0)
-            [ { position = ( x2, y2 ), size = ( x1 - x2, h1 + y1 - y2 ) }
-            , { position = ( x1, y2 ), size = ( x2 + w2 - x1, y1 - y2 ) }
-            , { position = ( x1 + w1, y1 ), size = ( x2 + w2 - (x1 + w1), y2 + h2 - y1 ) }
-            , { position = ( x2, y1 + h1 ), size = ( x1 + w1 - x2, y2 + h2 - (y1 + h1) ) }
-            ]
+    List.filter
+        (\box -> Tuple.first box.size > 0 && Tuple.second box.size > 0)
+        [ { position = ( x2, y2 ), size = ( x1 - x2, h1 + y1 - y2 ) }
+        , { position = ( x1, y2 ), size = ( x2 + w2 - x1, y1 - y2 ) }
+        , { position = ( x1 + w1, y1 ), size = ( x2 + w2 - (x1 + w1), y2 + h2 - y1 ) }
+        , { position = ( x2, y1 + h1 ), size = ( x1 + w1 - x2, y2 + h2 - (y1 + h1) ) }
+        ]
 
 
 fitRandom : Box -> ( Float, Float ) -> Random.Generator ( Float, Float )
-fitRandom { size, position } ( w, h ) =
+fitRandom box ( w, h ) =
     Random.map
         (\( x, y ) -> ( toFloat x, toFloat y ))
         (Random.pair
-            (Random.int (floor (Tuple.first position)) (floor (Tuple.first position + Tuple.first size - w)))
-            (Random.int (floor (Tuple.second position)) (floor (Tuple.second position + Tuple.second size - h)))
+            (Random.int
+                (floor (Tuple.first box.position))
+                (floor (Tuple.first box.position + Tuple.first box.size - w))
+            )
+            (Random.int
+                (floor (Tuple.second box.position))
+                (floor (Tuple.second box.position + Tuple.second box.size - h))
+            )
         )
 
 
 filterSize : ( Float, Float ) -> List Box -> List Box
 filterSize ( w, h ) =
-    List.filter (\{ size } -> Tuple.first size >= w && Tuple.second size >= h)
+    List.filter (\obj -> Tuple.first obj.size >= w && Tuple.second obj.size >= h)
 
 
 sortBySize : List Box -> List Box
 sortBySize =
-    List.sortBy (\{ size } -> Tuple.first size * Tuple.second size) >> List.reverse
+    List.sortBy (\obj -> Tuple.first obj.size * Tuple.second obj.size) >> List.reverse

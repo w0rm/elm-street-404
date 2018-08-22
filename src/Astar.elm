@@ -41,6 +41,7 @@ initialState gridSize obstacles start destination =
     , openNodes =
         if List.all (onGrid gridSize) [ start, destination ] then
             [ start ]
+
         else
             []
     , closedNodes = obstacles
@@ -80,6 +81,7 @@ checkInitNodeState node state =
 
             _ ->
                 state
+
     else
         state
 
@@ -94,7 +96,7 @@ closeNode current state =
 
 freeUnclosedNeighbors : Point -> State -> List Point
 freeUnclosedNeighbors ( px, py ) state =
-    List.foldl (\x -> (++) (List.map ((,) x) (List.range (py - 1) (py + 1)))) [] (List.range (px - 1) (px + 1))
+    List.foldl (\x -> (++) (List.map (\b -> ( x, b )) (List.range (py - 1) (py + 1)))) [] (List.range (px - 1) (px + 1))
         |> List.filter ((/=) ( px, py ))
         |> List.filter (onGrid state.gridSize)
         |> List.filter (\n -> not (List.member n state.closedNodes))
@@ -125,18 +127,21 @@ processNeighbors current neighbors state =
                         parent =
                             if best then
                                 Just current.node
+
                             else
                                 nstate.parent
 
                         h =
                             if neighborOpen then
                                 nstate.h
+
                             else
                                 distance neighbor state.dest
 
                         f =
                             if best then
                                 g + h
+
                             else
                                 nstate.f
 
@@ -154,43 +159,45 @@ processNeighbors current neighbors state =
                                 , openNodes =
                                     if neighborOpen then
                                         state.openNodes
+
                                     else
                                         neighbor :: state.openNodes
                             }
                     in
-                        processNeighbors current rest nextState
+                    processNeighbors current rest nextState
 
 
 processNodeNeighbors : NodeState -> State -> State
-processNodeNeighbors nodeState state =
+processNodeNeighbors nodeState_ state =
     let
         neighbors =
-            freeUnclosedNeighbors nodeState.node state
+            freeUnclosedNeighbors nodeState_.node state
 
         nextState =
             List.foldl checkInitNodeState state neighbors
     in
-        processNeighbors nodeState neighbors nextState
+    processNeighbors nodeState_ neighbors nextState
 
 
 astarIter : State -> State
 astarIter state =
     let
         openNodeStates =
-            List.filterMap ((flip nodeState) state) state.openNodes
+            List.filterMap ((\b a -> nodeState a b) state) state.openNodes
     in
-        case List.head (List.sortBy .f openNodeStates) of
-            Nothing ->
+    case List.head (List.sortBy .f openNodeStates) of
+        Nothing ->
+            state
+
+        Just nodeState_ ->
+            if nodeState_.node == state.dest then
                 state
 
-            Just nodeState ->
-                if nodeState.node == state.dest then
-                    state
-                else
-                    state
-                        |> closeNode nodeState.node
-                        |> processNodeNeighbors nodeState
-                        |> astarIter
+            else
+                state
+                    |> closeNode nodeState_.node
+                    |> processNodeNeighbors nodeState_
+                    |> astarIter
 
 
 unwindParents : Point -> State -> List Point
@@ -214,6 +221,6 @@ getPath state =
 findPath : Point -> List Point -> Point -> Point -> List Point
 findPath gridSize obstacles start destination =
     initialState gridSize obstacles start destination
-        |> (flip (List.foldl checkInitNodeState)) [ start, destination ]
+        |> (\b a -> List.foldl checkInitNodeState a b) [ start, destination ]
         |> astarIter
         |> getPath

@@ -1,17 +1,15 @@
-module DeliveryPerson
-    exposing
-        ( DeliveryPerson
-        , Location(..)
-        , initial
-        , animate
-        , navigateTo
-        )
+module DeliveryPerson exposing
+    ( DeliveryPerson
+    , Location(..)
+    , animate
+    , initial
+    , navigateTo
+    )
 
-import Time exposing (Time)
-import AnimationState exposing (AnimatedObject, animateFrame)
-import MapObject exposing (MapObject)
 import Actions exposing (Action(..))
+import AnimationState exposing (AnimatedObject, animateFrame)
 import Astar
+import MapObject exposing (MapObject)
 
 
 type Location
@@ -30,7 +28,7 @@ type alias DeliveryPerson =
         }
 
 
-pushThePedals : Time -> DeliveryPerson -> DeliveryPerson
+pushThePedals : Float -> DeliveryPerson -> DeliveryPerson
 pushThePedals time deliveryPerson =
     case deliveryPerson.location of
         OnTheWayTo _ _ ->
@@ -90,7 +88,7 @@ nextLocation route location =
             location
 
 
-moveToNext : Time -> ( Float, Float ) -> DeliveryPerson -> DeliveryPerson
+moveToNext : Float -> ( Float, Float ) -> DeliveryPerson -> DeliveryPerson
 moveToNext time dest deliveryPerson =
     let
         maxDelta =
@@ -111,12 +109,14 @@ moveToNext time dest deliveryPerson =
         actualDelta =
             if absSpeed > absMax then
                 maxDelta
+
             else
                 speedDelta
 
         remainderTime =
             if absSpeed > absMax then
                 time - time * absMax / absSpeed
+
             else
                 0
 
@@ -126,6 +126,7 @@ moveToNext time dest deliveryPerson =
         nextRoute =
             if absSpeed >= absMax then
                 List.drop 1 deliveryPerson.route
+
             else
                 deliveryPerson.route
 
@@ -139,10 +140,11 @@ moveToNext time dest deliveryPerson =
                 , route = nextRoute
             }
     in
-        if remainderTime > 0 then
-            moveOnPath remainderTime updatedPerson
-        else
-            updatedPerson
+    if remainderTime > 0 then
+        moveOnPath remainderTime updatedPerson
+
+    else
+        updatedPerson
 
 
 stayThere : DeliveryPerson -> DeliveryPerson
@@ -153,7 +155,7 @@ stayThere deliveryPerson =
     }
 
 
-moveOnPath : Time -> DeliveryPerson -> DeliveryPerson
+moveOnPath : Float -> DeliveryPerson -> DeliveryPerson
 moveOnPath time deliveryPerson =
     case currentDestination deliveryPerson of
         Nothing ->
@@ -163,7 +165,7 @@ moveOnPath time deliveryPerson =
             moveToNext time d deliveryPerson
 
 
-animate : Time -> DeliveryPerson -> ( DeliveryPerson, Maybe Action )
+animate : Float -> DeliveryPerson -> ( DeliveryPerson, Maybe Action )
 animate time deliveryPerson =
     let
         newDeliveryPerson =
@@ -171,12 +173,12 @@ animate time deliveryPerson =
                 |> pushThePedals time
                 |> moveOnPath time
     in
-        case newDeliveryPerson.location of
-            At location maybeAction ->
-                ( { newDeliveryPerson | location = At location Nothing }, maybeAction )
+    case newDeliveryPerson.location of
+        At location maybeAction ->
+            ( { newDeliveryPerson | location = At location Nothing }, maybeAction )
 
-            _ ->
-                ( newDeliveryPerson, Nothing )
+        _ ->
+            ( newDeliveryPerson, Nothing )
 
 
 initial : ( Float, Float ) -> DeliveryPerson

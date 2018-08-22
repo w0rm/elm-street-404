@@ -1,12 +1,12 @@
 module View.Inventory exposing (render)
 
+import Actions
 import Article exposing (Article)
 import Box exposing (Box)
+import Layers exposing (layers)
 import Textures
 import View.Category
 import View.Placeholder
-import Layers exposing (layers)
-import Actions
 
 
 render : ( Int, Int ) -> List Article -> List Box
@@ -32,9 +32,9 @@ render ( width, height ) articles =
                 pos =
                     ( toFloat number + x + 2, y + 1 )
             in
-                [ View.Category.render pos article.category
-                , Box.clickable ( 1, 1 ) ( 0, 0 ) pos ( layers.clickAbove, 0 ) (Actions.ClickArticle article)
-                ]
+            [ View.Category.render pos article.category
+            , Box.clickable ( 1, 1 ) ( 0, 0 ) pos ( layers.clickAbove, 0 ) (Actions.ClickArticle article)
+            ]
 
         renderPlaceholder number =
             View.Placeholder.render
@@ -43,6 +43,6 @@ render ( width, height ) articles =
         renderCategory number =
             View.Category.render ( toFloat (number + articlesNumber) + x + 2, y + 1 )
     in
-        Box.textured Textures.InventoryBubble ( x, y ) 0 ( layers.bubble, 0 )
-            :: List.concat (List.indexedMap renderArticle articlesInDelivery)
-            ++ List.map renderPlaceholder placeholders
+    Box.textured Textures.InventoryBubble ( x, y ) 0 ( layers.bubble, 0 )
+        :: List.concat (List.indexedMap renderArticle articlesInDelivery)
+        ++ List.map renderPlaceholder placeholders

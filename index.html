@@ -7,12 +7,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+  <div id="elm"></div>
   <script src="elm.js"></script>
   <script>
-    Elm.Main.fullscreen({
-      randomSeed: Date.now(),
-      imagesUrl: 'img',
-      devicePixelRatio: window.devicePixelRatio
+    Elm.Main.init({
+      node: document.getElementById('elm'),
+      flags: {
+        randomSeed: Date.now(),
+        imagesUrl: 'img',
+        devicePixelRatio: window.devicePixelRatio
+      }
     });
   </script>
 </body>

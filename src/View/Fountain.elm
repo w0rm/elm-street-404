@@ -1,10 +1,10 @@
 module View.Fountain exposing (render)
 
 import Box exposing (Box)
-import Textures
+import Fountain exposing (Fountain)
 import Layers exposing (layers)
 import MapObject exposing (MapObject)
-import Fountain exposing (Fountain)
+import Textures
 
 
 render : Fountain -> MapObject -> List Box

@@ -1,14 +1,13 @@
-module Box
-    exposing
-        ( TexturedBoxData
-        , ClickableBoxData
-        , Box
-        , split
-        , textured
-        , offsetTextured
-        , clickable
-        , clicked
-        )
+module Box exposing
+    ( Box
+    , ClickableBoxData
+    , TexturedBoxData
+    , clickable
+    , clicked
+    , offsetTextured
+    , split
+    , textured
+    )
 
 import Actions
 import Textures exposing (TextureId)
@@ -79,7 +78,7 @@ clicked ( x, y ) ({ position, offset, size, onClickAction } as box) =
         bottom =
             top + Tuple.second size
     in
-        x >= left && x < right && y >= top && y < bottom
+    x >= left && x < right && y >= top && y < bottom
 
 
 boxLayer : ( Float, Float ) -> ( Float, Float ) -> Float
@@ -98,9 +97,9 @@ split boxes =
                 ( restTextured, restClickable ) =
                     split rest
             in
-                case box of
-                    Textured texturedBox ->
-                        ( texturedBox :: restTextured, restClickable )
+            case box of
+                Textured texturedBox ->
+                    ( texturedBox :: restTextured, restClickable )
 
-                    Clickable clickableBox ->
-                        ( restTextured, clickableBox :: restClickable )
+                Clickable clickableBox ->
+                    ( restTextured, clickableBox :: restClickable )

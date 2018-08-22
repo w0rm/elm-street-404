@@ -1,9 +1,9 @@
 module View.Tree exposing (render)
 
-import Textures
 import Box exposing (Box)
 import Layers exposing (layers)
 import MapObject exposing (MapObject)
+import Textures
 
 
 render : MapObject -> List Box

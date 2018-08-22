@@ -1,19 +1,19 @@
-module Textures
-    exposing
-        ( Textures
-        , TextureId(..)
-        , filename
-        , textures
-        , loadTextures
-        , loadedTextures
-        )
+module Textures exposing
+    ( TextureId(..)
+    , Textures
+    , filename
+    , loadTextures
+    , loadedTextures
+    , textures
+    )
 
-import AllDict exposing (AllDict)
+import Dict exposing (Dict)
 import WebGL
+import WebGL.Texture exposing (Texture)
 
 
 type alias Textures =
-    AllDict TextureId TextureData String
+    Dict String TextureData
 
 
 type TextureId
@@ -52,7 +52,7 @@ filename textureId =
             "fountain-spring.png"
 
         HouseBubble n ->
-            "house-bubble-" ++ toString n ++ ".png"
+            "house-bubble-" ++ String.fromInt n ++ ".png"
 
         House ->
             "house.png"
@@ -127,61 +127,60 @@ filename textureId =
             "spotlight.png"
 
 
-textures : Textures
+textures : Dict String TextureData
 textures =
-    AllDict.fromList
-        filename
-        [ ( Categories, TextureData ( 1, 1 ) 14 Nothing )
-        , ( ClickToStart, TextureData ( 10, 2 ) 1 Nothing )
-        , ( Customers, TextureData ( 2, 3 ) 18 Nothing )
-        , ( DeliveryPersonFront, TextureData ( 2, 4 ) 29 Nothing )
-        , ( DeliveryPersonBack, TextureData ( 2, 4 ) 29 Nothing )
-        , ( Boxes, TextureData ( 2, 4 ) 29 Nothing )
-        , ( ElmStreet404, TextureData ( 13, 2 ) 1 Nothing )
-        , ( Fountain, TextureData ( 3, 2 ) 1 Nothing )
-        , ( FountainShadow, TextureData ( 4, 2 ) 1 Nothing )
-        , ( FountainSpring, TextureData ( 1, 2 ) 4 Nothing )
-        , ( House, TextureData ( 2, 3 ) 1 Nothing )
-        , ( HouseBubble 1, TextureData ( 3, 3 ) 1 Nothing )
-        , ( HouseBubble 2, TextureData ( 3, 4 ) 1 Nothing )
-        , ( HouseBubble 3, TextureData ( 3, 5 ) 1 Nothing )
-        , ( HouseShadow, TextureData ( 3, 2 ) 1 Nothing )
-        , ( InventoryBubble, TextureData ( 7, 3 ) 1 Nothing )
-        , ( Scarves, TextureData ( 2, 3 ) 3 Nothing )
-        , ( Score, TextureData ( 1, 1 ) 13 Nothing )
-        , ( Shirts, TextureData ( 2, 3 ) 12 Nothing )
-        , ( Shoes, TextureData ( 2, 3 ) 4 Nothing )
-        , ( Tree, TextureData ( 3, 5 ) 1 Nothing )
-        , ( Trousers, TextureData ( 2, 3 ) 3 Nothing )
-        , ( Warehouse, TextureData ( 4, 4 ) 1 Nothing )
-        , ( WarehouseBubble, TextureData ( 4, 5 ) 1 Nothing )
-        , ( WarehouseShadow, TextureData ( 5, 4 ) 1 Nothing )
-        , ( EndGame, TextureData ( 10, 7 ) 3 Nothing )
-        , ( Heart, TextureData ( 2, 1 ) 2 Nothing )
-        , ( Spotlight, TextureData ( 4, 2 ) 1 Nothing )
+    Dict.fromList
+        [ ( filename Categories, TextureData ( 1, 1 ) 14 Nothing )
+        , ( filename ClickToStart, TextureData ( 10, 2 ) 1 Nothing )
+        , ( filename Customers, TextureData ( 2, 3 ) 18 Nothing )
+        , ( filename DeliveryPersonFront, TextureData ( 2, 4 ) 29 Nothing )
+        , ( filename DeliveryPersonBack, TextureData ( 2, 4 ) 29 Nothing )
+        , ( filename Boxes, TextureData ( 2, 4 ) 29 Nothing )
+        , ( filename ElmStreet404, TextureData ( 13, 2 ) 1 Nothing )
+        , ( filename Fountain, TextureData ( 3, 2 ) 1 Nothing )
+        , ( filename FountainShadow, TextureData ( 4, 2 ) 1 Nothing )
+        , ( filename FountainSpring, TextureData ( 1, 2 ) 4 Nothing )
+        , ( filename House, TextureData ( 2, 3 ) 1 Nothing )
+        , ( filename (HouseBubble 1), TextureData ( 3, 3 ) 1 Nothing )
+        , ( filename (HouseBubble 2), TextureData ( 3, 4 ) 1 Nothing )
+        , ( filename (HouseBubble 3), TextureData ( 3, 5 ) 1 Nothing )
+        , ( filename HouseShadow, TextureData ( 3, 2 ) 1 Nothing )
+        , ( filename InventoryBubble, TextureData ( 7, 3 ) 1 Nothing )
+        , ( filename Scarves, TextureData ( 2, 3 ) 3 Nothing )
+        , ( filename Score, TextureData ( 1, 1 ) 13 Nothing )
+        , ( filename Shirts, TextureData ( 2, 3 ) 12 Nothing )
+        , ( filename Shoes, TextureData ( 2, 3 ) 4 Nothing )
+        , ( filename Tree, TextureData ( 3, 5 ) 1 Nothing )
+        , ( filename Trousers, TextureData ( 2, 3 ) 3 Nothing )
+        , ( filename Warehouse, TextureData ( 4, 4 ) 1 Nothing )
+        , ( filename WarehouseBubble, TextureData ( 4, 5 ) 1 Nothing )
+        , ( filename WarehouseShadow, TextureData ( 5, 4 ) 1 Nothing )
+        , ( filename EndGame, TextureData ( 10, 7 ) 3 Nothing )
+        , ( filename Heart, TextureData ( 2, 1 ) 2 Nothing )
+        , ( filename Spotlight, TextureData ( 4, 2 ) 1 Nothing )
         ]
 
 
 loadedTextures : Textures -> Int
-loadedTextures textures =
+loadedTextures textures_ =
     (1
-        - toFloat (List.length (loadTextures textures))
-        / toFloat (AllDict.size textures)
+        - toFloat (List.length (loadTextures textures_))
+        / toFloat (Dict.size textures_)
     )
         * 100
         |> round
 
 
-loadTextures : Textures -> List TextureId
-loadTextures textures =
-    AllDict.toList textures
+loadTextures : Textures -> List String
+loadTextures textures_ =
+    Dict.toList textures_
         |> List.filter (\( id, data ) -> data.texture == Nothing)
         |> List.map Tuple.first
 
 
 type alias TextureWithSize =
     { size : ( Float, Float )
-    , texture : WebGL.Texture
+    , texture : Texture
     }
 
 
