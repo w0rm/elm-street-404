@@ -1,10 +1,11 @@
 port module Update exposing (loadImage, update)
 
 import Actions exposing (..)
-import AllDict
 import Article exposing (Article, State(..))
+import Browser.Dom exposing (getViewport)
 import Category exposing (Category)
 import DeliveryPerson exposing (Location(..))
+import Dict
 import IHopeItWorks
 import MapObject exposing (MapObject, MapObjectCategory(..))
 import Model exposing (..)
@@ -12,7 +13,6 @@ import Task exposing (Task)
 import Textures exposing (TextureId)
 import View.Model
 import WebGL.Texture as Texture
-import Window
 
 
 port suspended : Bool -> Cmd msg
@@ -26,16 +26,19 @@ update action model =
             , Cmd.none
             )
 
-        Dimensions { width, height } ->
+        Dimensions width height ->
             ( Model.resize ( width, height ) model |> View.Model.render, Cmd.none )
 
-        TextureLoaded textureId maybeTexture ->
+        GetViewport { viewport } ->
+            ( Model.resize ( round viewport.width, round viewport.height ) model |> View.Model.render, Cmd.none )
+
+        TextureLoaded textureFilename maybeTexture ->
             let
                 loadTexture =
-                    case AllDict.get textureId model.textures of
+                    case Dict.get textureFilename model.textures of
                         Just data ->
-                            AllDict.insert
-                                textureId
+                            Dict.insert
+                                textureFilename
                                 { data
                                     | texture =
                                         Maybe.map
@@ -60,7 +63,7 @@ update action model =
                 texturesToLoad =
                     Textures.loadTextures newModel.textures
             in
-            if textureId == Textures.Score then
+            if textureFilename == Textures.filename Textures.Score then
                 case model.state of
                     Suspended _ ->
                         ( { newModel | state = Suspended Loading }
@@ -95,7 +98,7 @@ update action model =
             )
 
         Start ->
-            ( Model.start model
+            ( View.Model.render (Model.start model)
             , Cmd.none
             )
 
@@ -106,8 +109,8 @@ update action model =
             in
             ( View.Model.render newModel
             , case maybeAction of
-                Just action ->
-                    Task.perform identity (Task.succeed action)
+                Just action_ ->
+                    Task.perform identity (Task.succeed action_)
 
                 Nothing ->
                     Cmd.none
@@ -117,8 +120,8 @@ update action model =
             let
                 effect =
                     case Model.click ( x, y ) model of
-                        Just action ->
-                            Task.perform identity (Task.succeed action)
+                        Just action_ ->
+                            Task.perform identity (Task.succeed action_)
 
                         Nothing ->
                             Cmd.none
@@ -150,7 +153,7 @@ update action model =
             case ( model.embed, model.state ) of
                 ( True, Suspended prevState ) ->
                     ( { model | state = prevState }
-                    , Task.perform Dimensions Window.size
+                    , Task.perform GetViewport getViewport
                     )
 
                 _ ->
@@ -180,10 +183,10 @@ ifPlaying fun model =
         )
 
 
-loadImage : String -> TextureId -> Cmd Action
-loadImage imagesUrl textureId =
-    Texture.load (imagesUrl ++ "/" ++ Textures.filename textureId)
-        |> Task.attempt (Result.toMaybe >> TextureLoaded textureId)
+loadImage : String -> String -> Cmd Action
+loadImage imagesUrl textureSrc =
+    Texture.load (imagesUrl ++ "/" ++ textureSrc)
+        |> Task.attempt (Result.toMaybe >> TextureLoaded textureSrc)
 
 
 

@@ -168,15 +168,15 @@ processNeighbors current neighbors state =
 
 
 processNodeNeighbors : NodeState -> State -> State
-processNodeNeighbors nodeState state =
+processNodeNeighbors nodeState_ state =
     let
         neighbors =
-            freeUnclosedNeighbors nodeState.node state
+            freeUnclosedNeighbors nodeState_.node state
 
         nextState =
             List.foldl checkInitNodeState state neighbors
     in
-    processNeighbors nodeState neighbors nextState
+    processNeighbors nodeState_ neighbors nextState
 
 
 astarIter : State -> State
@@ -189,14 +189,14 @@ astarIter state =
         Nothing ->
             state
 
-        Just nodeState ->
-            if nodeState.node == state.dest then
+        Just nodeState_ ->
+            if nodeState_.node == state.dest then
                 state
 
             else
                 state
-                    |> closeNode nodeState.node
-                    |> processNodeNeighbors nodeState
+                    |> closeNode nodeState_.node
+                    |> processNodeNeighbors nodeState_
                     |> astarIter
 
 

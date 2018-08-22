@@ -26,8 +26,8 @@ direction { route, position } =
 
 
 boxesOffset : Int -> ( Float, Float )
-boxesOffset direction =
-    case direction of
+boxesOffset direction_ =
+    case direction_ of
         2 ->
             ( -0.5, -2 )
 
@@ -61,7 +61,7 @@ render numberOfBoxes deliveryPerson =
                 (boxesOffset (direction deliveryPerson))
                 Textures.Boxes
                 deliveryPerson.position
-                ((4 - numberOfBoxes) * 6 + (modBy 2 (direction deliveryPerson)) * 3 + deliveryPerson.frame)
+                ((4 - numberOfBoxes) * 6 + modBy 2 (direction deliveryPerson) * 3 + deliveryPerson.frame)
                 ( layers.obstacle, 2 )
             , Box.offsetTextured
                 ( 0, -2 )

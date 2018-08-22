@@ -27,7 +27,6 @@ import MapObject exposing (MapObject, MapObjectCategory(..))
 import Random
 import Request exposing (Request)
 import Textures exposing (TextureId, Textures)
-import Time exposing (Time)
 
 
 type State
@@ -92,7 +91,7 @@ type alias Model =
     , customers : Dict Int Customer
     , id : Int
     , mapObjects : List MapObject
-    , events : List ( Time, EventAction )
+    , events : List ( Float, EventAction )
     , score : Int
     , maxLives : Int
     , clickableBoxes : List ClickableBoxData
@@ -154,10 +153,10 @@ resize dimensions model =
 
 
 positionObstacles : Model -> Model
-positionObstacles ({ gridSize, deliveryPerson } as model) =
+positionObstacles model =
     let
         ( width, height ) =
-            gridSize
+            model.gridSize
 
         boxes =
             MapObject.splitBy
@@ -211,12 +210,12 @@ start model =
         |> dispatchOrders 3
 
 
-animate : Time -> Model -> ( Model, Maybe Action )
+animate : Float -> Model -> ( Model, Maybe Action )
 animate time =
     animationLoop (min time 25)
 
 
-animationLoop : Time -> Model -> ( Model, Maybe Action )
+animationLoop : Float -> Model -> ( Model, Maybe Action )
 animationLoop elapsed model =
     let
         ( deliveryPerson, maybeAction ) =

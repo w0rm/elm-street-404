@@ -10,7 +10,6 @@ import Actions exposing (Action(..))
 import AnimationState exposing (AnimatedObject, animateFrame)
 import Astar
 import MapObject exposing (MapObject)
-import Time exposing (Time)
 
 
 type Location
@@ -29,7 +28,7 @@ type alias DeliveryPerson =
         }
 
 
-pushThePedals : Time -> DeliveryPerson -> DeliveryPerson
+pushThePedals : Float -> DeliveryPerson -> DeliveryPerson
 pushThePedals time deliveryPerson =
     case deliveryPerson.location of
         OnTheWayTo _ _ ->
@@ -89,7 +88,7 @@ nextLocation route location =
             location
 
 
-moveToNext : Time -> ( Float, Float ) -> DeliveryPerson -> DeliveryPerson
+moveToNext : Float -> ( Float, Float ) -> DeliveryPerson -> DeliveryPerson
 moveToNext time dest deliveryPerson =
     let
         maxDelta =
@@ -156,7 +155,7 @@ stayThere deliveryPerson =
     }
 
 
-moveOnPath : Time -> DeliveryPerson -> DeliveryPerson
+moveOnPath : Float -> DeliveryPerson -> DeliveryPerson
 moveOnPath time deliveryPerson =
     case currentDestination deliveryPerson of
         Nothing ->
@@ -166,7 +165,7 @@ moveOnPath time deliveryPerson =
             moveToNext time d deliveryPerson
 
 
-animate : Time -> DeliveryPerson -> ( DeliveryPerson, Maybe Action )
+animate : Float -> DeliveryPerson -> ( DeliveryPerson, Maybe Action )
 animate time deliveryPerson =
     let
         newDeliveryPerson =

@@ -1,14 +1,15 @@
 module WebGLView exposing (render)
 
 import Actions exposing (Action)
-import AllDict exposing (AllDict)
 import Box
+import Dict
 import Html exposing (Html)
 import Html.Attributes exposing (height, style, width)
-import Math.Vector2 exposing (Vec2, fromTuple, vec2)
+import Math.Vector2 exposing (Vec2, vec2)
 import Textures exposing (Textures)
-import WebGL exposing (Entity, Mesh, Shader, Texture)
+import WebGL exposing (Entity, Mesh, Shader)
 import WebGL.Settings.Blend as Blend
+import WebGL.Texture exposing (Texture)
 
 
 type alias Vertex =
@@ -49,15 +50,15 @@ render devicePixelRatio (( w, h ) as dimensions) tileSize textures boxes =
         [ width (toFloat w * toFloat tileSize * devicePixelRatio |> round)
         , height (toFloat h * toFloat tileSize * devicePixelRatio |> round)
         , style "position" "absolute"
-        , style "width" (toString (w * tileSize) ++ "px")
-        , style "height" (toString (h * tileSize) ++ "px")
+        , style "width" (String.fromInt (w * tileSize) ++ "px")
+        , style "height" (String.fromInt (h * tileSize) ++ "px")
         ]
         (List.filterMap (renderTextured dimensions textures) (List.reverse boxes))
 
 
 renderTextured : ( Int, Int ) -> Textures -> Box.TexturedBoxData -> Maybe Entity
 renderTextured ( w, h ) textures ({ textureId, position, frame, offset } as box) =
-    AllDict.get textureId textures
+    Dict.get (Textures.filename textureId) textures
         |> Maybe.andThen
             (\{ size, texture } ->
                 Maybe.map
@@ -71,8 +72,8 @@ renderTextured ( w, h ) textures ({ textureId, position, frame, offset } as box)
                             , offset = vec2 (Tuple.first offset + Tuple.first position) (Tuple.second offset + Tuple.second position)
                             , texture = textureValue.texture
                             , frame = frame
-                            , textureSize = fromTuple textureValue.size
-                            , frameSize = fromTuple size
+                            , textureSize = vec2 (Tuple.first textureValue.size) (Tuple.second textureValue.size)
+                            , frameSize = vec2 (Tuple.first size) (Tuple.second size)
                             }
                     )
                     texture

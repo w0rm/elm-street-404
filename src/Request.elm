@@ -17,7 +17,6 @@ import Dict exposing (Dict)
 import IHopeItWorks
 import MapObject exposing (MapObject)
 import Random
-import Time exposing (Time)
 
 
 type RequestCategory
@@ -26,8 +25,8 @@ type RequestCategory
 
 
 type alias Request =
-    { timeout : Time
-    , elapsed : Time
+    { timeout : Float
+    , elapsed : Float
     , house : MapObject
     , category : RequestCategory
     , blinkHidden : Bool
@@ -50,8 +49,8 @@ orderedCategories requests =
         [] ->
             []
 
-        request :: rest ->
-            case request.category of
+        request_ :: rest ->
+            case request_.category of
                 Order category ->
                     category :: orderedCategories rest
 
@@ -99,26 +98,26 @@ orders number houses categories =
 
 
 isInReturn : MapObject -> Article -> Request -> Bool
-isInReturn house article request =
-    case request.category of
+isInReturn house article request_ =
+    case request_.category of
         Return article_ ->
-            house == request.house && article_ == article
+            house == request_.house && article_ == article
 
         _ ->
             False
 
 
 isOrdered : MapObject -> Category -> Request -> Bool
-isOrdered house category request =
-    case request.category of
+isOrdered house category request_ =
+    case request_.category of
         Order category_ ->
-            house == request.house && category_ == category
+            house == request_.house && category_ == category
 
         _ ->
             False
 
 
-flash : Time -> Bool
+flash : Float -> Bool
 flash elapsed =
     let
         z =
@@ -156,11 +155,11 @@ flash elapsed =
         0 < sin (s * x)
 
 
-animate : Time -> Request -> Request
-animate time request =
-    { request
-        | elapsed = request.elapsed + time
-        , blinkHidden = flash request.elapsed
+animate : Float -> Request -> Request
+animate time request_ =
+    { request_
+        | elapsed = request_.elapsed + time
+        , blinkHidden = flash request_.elapsed
     }
 
 

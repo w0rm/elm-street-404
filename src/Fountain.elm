@@ -1,10 +1,9 @@
 module Fountain exposing (Fountain, animate, fountain)
 
 import AnimationState exposing (AnimatedObject, animateFrame)
-import Time exposing (Time)
 
 
-animate : Time -> Fountain -> Fountain
+animate : Float -> Fountain -> Fountain
 animate =
     animateFrame 3
 

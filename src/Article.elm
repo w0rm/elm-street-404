@@ -53,8 +53,8 @@ warehouses articles =
 house : Dict Int Customer -> Article -> Maybe MapObject
 house customers { state } =
     case state of
-        AwaitingReturn house ->
-            Just house
+        AwaitingReturn house_ ->
+            Just house_
 
         DeliveredToCustomer id ->
             case Dict.get id customers of
@@ -106,12 +106,12 @@ isPicked { state } =
 
 
 isDelivered : Dict Int Customer -> MapObject -> Article -> Bool
-isDelivered customers house { state } =
+isDelivered customers house_ { state } =
     case state of
         DeliveredToCustomer id ->
             case Dict.get id customers of
                 Just { location } ->
-                    location == Just house
+                    location == Just house_
 
                 Nothing ->
                     False
@@ -136,12 +136,12 @@ isVacant { state } =
 
 
 dispatch : Int -> List MapObject -> Random.Generator (List Article)
-dispatch number warehouses =
+dispatch number warehouses_ =
     if number <= 0 then
         Random.map (always []) (Random.int 0 0)
 
     else
-        IHopeItWorks.pickRandom warehouses
+        IHopeItWorks.pickRandom warehouses_
             |> Random.andThen
                 (\maybeWarehouse ->
                     case maybeWarehouse of
@@ -149,7 +149,7 @@ dispatch number warehouses =
                             Random.map2
                                 (\category articles -> { category = category, state = InStock warehouse } :: articles)
                                 Category.random
-                                (dispatch (number - 1) (IHopeItWorks.remove ((==) warehouse) warehouses))
+                                (dispatch (number - 1) (IHopeItWorks.remove ((==) warehouse) warehouses_))
 
                         Nothing ->
                             Random.map (always []) (Random.int 0 0)
@@ -204,8 +204,8 @@ markInReturn customers articles articlesToReturn =
                                 case Dict.get id customers of
                                     Just { location } ->
                                         case location of
-                                            Just house ->
-                                                { article | state = AwaitingReturn house }
+                                            Just house_ ->
+                                                { article | state = AwaitingReturn house_ }
 
                                             _ ->
                                                 article

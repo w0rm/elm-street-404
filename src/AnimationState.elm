@@ -3,20 +3,18 @@ module AnimationState exposing
     , animateFrame
     )
 
-import Time exposing (Time)
-
 
 type alias AnimatedObject a =
     { a
-        | elapsed : Time
-        , timeout : Time
+        | elapsed : Float
+        , timeout : Float
         , frame : Int
     }
 
 
 {-| incrtemens frame every time timeout is reached
 -}
-animateFrame : Int -> Time -> AnimatedObject a -> AnimatedObject a
+animateFrame : Int -> Float -> AnimatedObject a -> AnimatedObject a
 animateFrame frames elapsed state =
     let
         elapsed_ =

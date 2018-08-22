@@ -10,9 +10,9 @@ addPointToSring : Int -> ( Int, Int ) -> String -> String
 addPointToSring tileSize ( x, y ) =
     (++)
         (" "
-            ++ toString (x * tileSize + tileSize)
+            ++ String.fromInt (x * tileSize + tileSize)
             ++ ","
-            ++ toString (y * tileSize + tileSize // 2)
+            ++ String.fromInt (y * tileSize + tileSize // 2)
         )
 
 
@@ -23,7 +23,7 @@ renderPoints tileSize waypoints =
         , strokeLinejoin "round"
         , strokeLinecap "round"
         , stroke "#bdab82"
-        , strokeWidth (toString tileSize)
+        , strokeWidth (String.fromInt tileSize)
         , opacity "0.5"
         , fill "transparent"
         ]
@@ -34,9 +34,9 @@ render : ( Int, Int ) -> Int -> List ( Int, Int ) -> Html Action
 render ( w, h ) tileSize route =
     svg
         [ version "1.1"
-        , viewBox ("0 0 " ++ toString (w * tileSize) ++ " " ++ toString (h * tileSize))
-        , width (toString (w * tileSize))
-        , height (toString (h * tileSize))
+        , viewBox ("0 0 " ++ String.fromInt (w * tileSize) ++ " " ++ String.fromInt (h * tileSize))
+        , width (String.fromInt (w * tileSize))
+        , height (String.fromInt (h * tileSize))
         , style "position: absolute"
         ]
         [ renderPoints tileSize route ]

@@ -13,7 +13,6 @@ import Dict exposing (Dict)
 import IHopeItWorks
 import MapObject exposing (MapObject)
 import Random
-import Time exposing (Time)
 
 
 type alias Customer =
@@ -39,7 +38,7 @@ initial id house typ =
     }
 
 
-animate : Time -> Customer -> Customer
+animate : Float -> Customer -> Customer
 animate =
     animateFrame 2
 
